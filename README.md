@@ -1,3 +1,10 @@
+Application of GreyCat on a project of battleground simulation.
+
+Version 1.0 : 18/05/2017
+
+By myself
+
+
 # GreyCat: samples
 This project contains minimalist but easy to hack GreyCat samples.
 These samples highlight the most important features implemented in Core, Core JS and the various plugins of GreyCat.
