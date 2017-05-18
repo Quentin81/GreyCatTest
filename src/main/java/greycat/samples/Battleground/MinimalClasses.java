@@ -48,14 +48,8 @@ public class MinimalClasses {
                 //Display the value at time now
                 System.out.println("T1:" + tank1T1.toString()); //print T1:{"world":0,"time":100,"id":1,"id":"4494F","name":"sensor0","value":21.3}
 
-                tank1.addToRelation("can_destroy", target1); //add the sensor0 to the relation sensors of room0
-
-                tank1.relation("can_destroy", (Node[] can_destroy) -> {
-                    System.out.println("Relationship can destroy :");
-                    for (Node can_des : can_destroy) {
-                        System.out.println("\t" + can_des.toString());
-                    }
-                });
+                tank1T1.addToRelation("can_destroy", target1); //add the sensor0 to the relation sensors of room0
+                System.out.println(tank1T1.toString());
 
 
 
