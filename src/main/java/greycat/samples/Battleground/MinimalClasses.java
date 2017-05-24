@@ -58,26 +58,24 @@ public class MinimalClasses {
                                     .then(defineAsVar("res"))
                                     .then(println("{{res}}"))
                                     .then(createNode())
-                                    .then(setAttribute("name",Type.STRING,"node_{{i}}"))
+                                    .then(setAttribute("name",Type.STRING,"tank_{{i}}"))
                                     .then(setAttribute("type",Type.STRING,"Tank"))
                                     .then(setAttribute("power",Type.DOUBLE,"{{res}}"))
-                                    .then(addVarToRelation("can_destroy", "test", "node_{{i}}"))
+                                    //.then(addVarToRelation("can_destroy", "test", "node_{{i}}"))
                                     .then(travelInTime("0"))
-                                    .then(println("{{result}}")))
-
-                    .execute(g,null);
-
-            newTask()
-                    .loop("1","14",
-                            newTask()
+                                    .defineAsVar("tank_atm")
+                                    .then(println("{{result}}"))
                                     .then(createNode())
-                                    .then(setAttribute("name",Type.STRING,"node_{{i}}"))
+                                    .then(setAttribute("name",Type.STRING,"target_{{i}}"))
                                     .then(setAttribute("type",Type.STRING,"Target"))
                                     .then(setAttribute("resilience",Type.DOUBLE,"{{i}}"))
                                     .then(travelInTime("0"))
+                                    .then(addVarToRelation("can_be_destroyed","tank_atm"))
                                     .then(println("{{result}}")))
 
+
                     .execute(g,null);
+
 
 
 
