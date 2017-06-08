@@ -30,22 +30,11 @@ public class Data2 {
             System.out.println("Connected : " + isConnected);
 
 
-
-            String vehicle_array[] = {"vehicle1", "vehicle2", "vehicle3" , "vehicle4", "vehicle5", "vehicle6"};
-
-            String type_vehicle_array[] = {"Plane", "Car", "Train", "Plane", "Car", "Train"};
-
-            Double gps_array_vehicle[][] = {{0.0, 0.0, 5.0 , 5.0},{1.5, 0.0, 2.0 , 3.0},{0.0, 1.5, 4.0 , 1.0},{5.0, 2.0, 4.5 , 3.0},{3.0, 3.5, 0.0 , 0.0},{1.0, 2.0, 3.0 , 4.5}};
-
-            int timepoint_array[] ={0,1,2,3,4,5,6};  //the timestamp is a long and represents the time concept
-
-
-
-            newTask()
+            newTask()     //add node train
                     .loop("0", "5",
                             newTask()
                                     .then(createNode())
-                                    .then(travelInTime("0"))
+                                    .then(travelInTime("{{i}}"))
                                     .then(setAttribute("longitude", Type.DOUBLE, "{{i}}"))
                                     .then(setAttribute("latitude", Type.DOUBLE, "{{i}}"))
                                     .then(println("{{result}}"))
@@ -54,6 +43,7 @@ public class Data2 {
                                     .then(createNode())
                                     .then(setAttribute("name", Type.STRING, "TGV_{{i}}"))
                                     .then(setAttribute("type", Type.STRING, "Train"))
+                                    .defineAsVar("nodes_train")
                                     //.then(println("{{result}}"))
 
                                     .then(addVarToRelation("has_gps", "data_gps"))
@@ -63,14 +53,19 @@ public class Data2 {
                                     .then(travelInTime("{{=4*i}}"))
                                     .then(setAttribute("longitude", Type.DOUBLE, "{{=i+2}}"))
                                     .then(setAttribute("latitude", Type.DOUBLE, "{{=i-2}}"))
-                                    .then(println("{{result}}")))
+                                    .then(println("{{result}}"))
+
+                                    .then(readVar("nodes_train"))
+                                    .then(addToGlobalIndex("index_vehicle","type")))
+
+
                     .execute(g, null);
 
-            newTask()
+            newTask()    //add node car
                     .loop("0", "4",
                             newTask()
                                     .then(createNode())
-                                    .then(travelInTime("0"))
+                                    .then(travelInTime("{{=2*i}}"))
                                     .then(setAttribute("longitude", Type.DOUBLE, "{{i}}"))
                                     .then(setAttribute("latitude", Type.DOUBLE, "{{i}}"))
                                     .then(println("{{result}}"))
@@ -79,6 +74,7 @@ public class Data2 {
                                     .then(createNode())
                                     .then(setAttribute("name", Type.STRING, "Audi_{{i}}"))
                                     .then(setAttribute("type", Type.STRING, "Car"))
+                                    .defineAsVar("nodes_car")
                                     //.then(println("{{result}}"))
 
                                     .then(addVarToRelation("has_gps", "data_gps"))
@@ -88,11 +84,21 @@ public class Data2 {
                                     .then(travelInTime("{{=3*i}}"))
                                     .then(setAttribute("longitude", Type.DOUBLE, "{{=i+1}}"))
                                     .then(setAttribute("latitude", Type.DOUBLE, "{{=i-2}}"))
-                                    .then(println("{{result}}")))
+
+                                    .then(println("{{result}}"))
+                                    .then(readVar("nodes_car"))
+                                    .then(addToGlobalIndex("index_vehicle","type")))
+
+
                     .execute(g, null);
 
+            newTask()    //reading index
+                    .then(travelInTime("5"))
+                    .then(indexNames())
+                    .then(readGlobalIndex("index_vehicle"))
+                    .then(println("{{result}}"))
 
-
+                    .execute(g, null);
 
         });
     }
