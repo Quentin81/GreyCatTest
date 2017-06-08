@@ -29,60 +29,36 @@ public class Data {
             System.out.println("Connected : " + isConnected);
 
 
-            //TRYING HERE !!!
+            String vehicle_array[] = {"vehicle1", "vehicle2", "vehicle3" , "vehicle4", "vehicle5", "vehicle6"};
 
+            Double gps_array_vehicle[][] = {{0.0, 0.0, 5.0 , 5.0},{1.5, 0.0, 2.0 , 3.0},{0.0, 1.5, 4.0 , 1.0},{5.0, 2.0, 4.5 , 3.0},{3.0, 3.5, 0.0 , 0.0},{1.0, 2.0, 3.0 , 4.5}};
 
-            long timepoint_0 = 0;  //the timestamp is a long and represents the time concept
+            int timepoint_array[] ={0,1,2,3,4,5,6};  //the timestamp is a long and represents the time concept
 
+            for(int i=0; i < vehicle_array.length; i++) {
 
+                Node data_gps = g.newNode(0, timepoint_array[0]); //the second param is the time
+                data_gps.set("longitude", Type.DOUBLE, gps_array_vehicle[i][0]); //set the value of the sensor
+                data_gps.set("latitude", Type.DOUBLE, gps_array_vehicle[i][1]); //set the value of the sensor
 
-            String tankarray[] = {"tank1", "tank2", "tank3" , "tank4", "tank5", "tank6"};
+                Node vehicle = g.newNode(0, timepoint_array[0]); //the second param is the time
+                vehicle.set("type", Type.STRING, "vehicle");
+                vehicle.set("name", Type.STRING, vehicle_array[i]);
 
-            String targetarray[] = {"target1", "target2", "target3" , "target4"};
+                vehicle.addToRelation("has_gps", data_gps); //add the sensor0 to the relation sensors of room0
 
-            double j = 1.0;
+                System.out.println(vehicle.toString());
+                System.out.println(data_gps.toString());
 
-            for(int i = 0; i < targetarray.length; i++) {
+                data_gps.travelInTime(timepoint_array[i+1], (Node data_gps_Ti) -> {
 
-                System.out.println("À l'emplacement " + i + " du tableau nous avons = " + targetarray[i]);
-
-
-                Node temp = g.newNode(0, timepoint_0); //the second param is the time
-                temp.set("type", Type.STRING, "target");
-                temp.set("name", Type.STRING, targetarray[i]);
-                temp.set("Resilience", Type.DOUBLE, j); //set the value of the sensor
-                System.out.println(temp.toString());
-                j = j + 5.0;
-
+                    int j=0;
+                    data_gps_Ti.set("longitude", Type.DOUBLE, gps_array_vehicle[j][2]);
+                    data_gps_Ti.set("latitude", Type.DOUBLE, gps_array_vehicle[j][3]);
+                    j=j+1;
+                    System.out.println(data_gps_Ti.toString());
+                });
             }
-
-
-
-
-            double k = 0.0;
-
-            for(int i = 0; i < tankarray.length; i++){
-
-
-                System.out.println("À l'emplacement " + i + " du tableau nous avons = " + tankarray[i]);
-                Node temp2 = g.newNode(0, timepoint_0); //the second param is the time
-                temp2.set("type", Type.STRING,"tank" );
-                temp2.set("name", Type.STRING, tankarray[i]);
-                temp2.set("Power", Type.DOUBLE, k); //set the value of the sensor
-                System.out.println(temp2.toString());
-                k=k+5.0;
-
-
-
-            }
-
-
-            long timepoint_1 = 100;
-
         });
     }
-
-
-
-
 }
