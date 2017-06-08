@@ -1,5 +1,6 @@
 package greycat.samples.gps;
 
+import com.sun.org.apache.bcel.internal.generic.Select;
 import greycat.*;
 import greycat.Type;
 import greycat.Graph;
@@ -7,6 +8,10 @@ import greycat.GraphBuilder;
 import greycat.Node;
 import greycat.internal.task.math.MathExpressionEngine;
 import greycat.internal.task.math.CoreMathExpressionEngine;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import static greycat.Tasks.*;
 import static greycat.internal.task.CoreActions.*;
 
@@ -56,7 +61,7 @@ public class Data2 {
                                     .then(println("{{result}}"))
 
                                     .then(readVar("nodes_train"))
-                                    .then(addToGlobalIndex("index_vehicle","type")))
+                                    .then(addToGlobalIndex("index_vehicle", "type")))
 
 
                     .execute(g, null);
@@ -87,18 +92,39 @@ public class Data2 {
 
                                     .then(println("{{result}}"))
                                     .then(readVar("nodes_car"))
-                                    .then(addToGlobalIndex("index_vehicle","type")))
+                                    .then(addToGlobalIndex("index_vehicle", "type")))
 
 
                     .execute(g, null);
+
+
+            List<Object> coord = new ArrayList();
 
             newTask()    //reading index
                     .then(travelInTime("5"))
                     .then(indexNames())
-                    .then(readGlobalIndex("index_vehicle"))
+                    .then(readGlobalIndex("index_vehicle", "type", "Car"))
+                    .traverse("has_gps")
+                    //.traverse("has_gps","latitude","2.0")
+                    //.attribute("latitude")
                     .then(println("{{result}}"))
+//                    .execute(g, new Callback<TaskResult>() {
+//                        @Override
+//                        public void on(TaskResult taskResult) {
+//                            for (int i = 0; i < taskResult.size(); i++) {
+//                                Object coord = taskResult.get(i);
+//                            }
+//                         }
+//                    });
 
                     .execute(g, null);
+
+
+            System.out.println(coord);
+
+            g.disconnect(result -> {
+                System.out.println("Goodbye !");
+            });
 
         });
     }
