@@ -98,34 +98,39 @@ public class Data2 {
                     .execute(g, null);
 
 
-            List<Object> coord = new ArrayList();
+            List<Double> coord = new ArrayList();
 
             newTask()    //reading index
-                    .then(travelInTime("5"))
+                    .then(travelInTime("10"))
                     .then(indexNames())
                     .then(readGlobalIndex("index_vehicle", "type", "Car"))
+                    //.defineAsVar()
                     .traverse("has_gps")
+                    .pipe(newTask().attribute("longitude"),
+                            newTask().attribute("latitude"))
+                    .flat()
                     //.traverse("has_gps","latitude","2.0")
                     //.attribute("latitude")
                     .then(println("{{result}}"))
-//                    .execute(g, new Callback<TaskResult>() {
-//                        @Override
-//                        public void on(TaskResult taskResult) {
-//                            for (int i = 0; i < taskResult.size(); i++) {
-//                                Object coord = taskResult.get(i);
-//                            }
-//                         }
-//                    });
+                    .execute(g, new Callback<TaskResult>() {
+                        @Override
+                        public void on(TaskResult taskResult) {
+                            for (int i = 0; i < taskResult.size(); i++) {
+                                Double data = (Double) taskResult.get(i);
+                                //System.out.println(data);
+                                coord.add(data);
+                            }
+                         }
+                    });
+                    //.executeSync(g,g );
+                    //.execute(g, null);
 
-                    .execute(g, null);
 
-
-            System.out.println(coord);
+            System.out.println(coord);     //
 
             g.disconnect(result -> {
                 System.out.println("Goodbye !");
             });
-
         });
     }
 }
