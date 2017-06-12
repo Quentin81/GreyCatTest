@@ -21,7 +21,9 @@ import static greycat.Tasks.newTask;
 /**
  * Created by Quentin on 08/06/2017.
  */
-public class Data2 {
+
+
+    public class Data2 {
 
 
     public static void main(String[] args) {
@@ -98,25 +100,28 @@ public class Data2 {
                     .execute(g, null);
 
 
-            List<Double> coord = new ArrayList();
+
+            List<Vehicle_GPS> coord = new ArrayList();
+            String travel_time = "5";
 
             newTask()    //reading index
-                    .then(travelInTime("10"))
+                    .then(travelInTime(travel_time))
                     .then(indexNames())
-                    .then(readGlobalIndex("index_vehicle", "type", "Car"))
-                    //.defineAsVar()
-                    .traverse("has_gps")
-                    .pipe(newTask().attribute("longitude"),
-                            newTask().attribute("latitude"))
+                    //.then(readGlobalIndex("index_vehicle", "type", "Car"))
+                    .then(readGlobalIndex("index_vehicle"))
+                    .then(println("{{result}}"))
+                    .pipe(  newTask().attribute("name"),
+                            newTask().attribute("type"),
+                            newTask().traverse("has_gps").attribute("longitude"),
+                            newTask().traverse("has_gps").attribute("latitude"))
                     .flat()
                     //.traverse("has_gps","latitude","2.0")
-                    //.attribute("latitude")
-                    .then(println("{{result}}"))
                     .execute(g, new Callback<TaskResult>() {
                         @Override
                         public void on(TaskResult taskResult) {
-                            for (int i = 0; i < taskResult.size(); i++) {
-                                Double data = (Double) taskResult.get(i);
+                            for (int i = 0; i < taskResult.size()/4; i++) {
+                                int j = taskResult.size()/4;
+                                Vehicle_GPS data = new Vehicle_GPS((String) taskResult.get(i), (String) taskResult.get(i+j), (Double) taskResult.get(i+2*j) ,(Double) taskResult.get(i+3*j));
                                 //System.out.println(data);
                                 coord.add(data);
                             }
@@ -125,8 +130,14 @@ public class Data2 {
                     //.executeSync(g,g );
                     //.execute(g, null);
 
+            System.out.println(coord);
 
-            System.out.println(coord);     //
+            System.out.println("At time " + travel_time + " the following vehicles are created :");
+
+            for (int i = 0; i < coord.size(); i++) {
+                System.out.println(coord.get(i).name + " type " + coord.get(i).type + " with a longitude of " + coord.get(i).longitude + " and a latitude of " + coord.get(i).latitude + ".");
+            }
+
 
             g.disconnect(result -> {
                 System.out.println("Goodbye !");
