@@ -138,7 +138,7 @@ import static greycat.Tasks.newTask;
                 System.out.println(coord.get(i).name + " type " + coord.get(i).type + " with a longitude of " + coord.get(i).longitude + " and a latitude of " + coord.get(i).latitude + ".");
             }
 
-
+            //test
             g.disconnect(result -> {
                 System.out.println("Goodbye !");
             });
