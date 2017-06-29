@@ -8,6 +8,7 @@ import greycat.GraphBuilder;
 import greycat.Node;
 import greycat.internal.task.math.MathExpressionEngine;
 import greycat.internal.task.math.CoreMathExpressionEngine;
+import greycat.leveldb.LevelDBStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,10 @@ import static greycat.Tasks.newTask;
     public static void main(String[] args) {
 
         //Create a minimal graph with the default configuration
-        Graph g = new GraphBuilder().build();
+        Graph g = new GraphBuilder()
+                .withMemorySize(10000) //cache size before sync to disk
+                .withStorage(new LevelDBStorage("greycat_db_test")) //location to store on disc
+                .build();
 
         //Connect the graph
         g.connect(isConnected -> {
@@ -38,7 +42,7 @@ import static greycat.Tasks.newTask;
 
 
             newTask()     //add node train
-                    .loop("0", "5",
+                    .loop("0", "10",
                             newTask()
                                     .then(createNode())
                                     .then(travelInTime("{{i}}"))
@@ -69,7 +73,7 @@ import static greycat.Tasks.newTask;
                     .execute(g, null);
 
             newTask()    //add node car
-                    .loop("0", "4",
+                    .loop("0", "10",
                             newTask()
                                     .then(createNode())
                                     .then(travelInTime("{{=2*i}}"))
@@ -116,6 +120,8 @@ import static greycat.Tasks.newTask;
                             newTask().traverse("has_gps").attribute("latitude"))
                     .flat()
                     //.traverse("has_gps","latitude","2.0")
+
+
                     .execute(g, new Callback<TaskResult>() {
                         @Override
                         public void on(TaskResult taskResult) {
