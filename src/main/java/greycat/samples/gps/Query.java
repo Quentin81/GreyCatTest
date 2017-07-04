@@ -9,13 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-import greycat.*;
-import greycat.Type;
-import greycat.Graph;
-import greycat.GraphBuilder;
-import greycat.Node;
-import greycat.internal.task.math.MathExpressionEngine;
-import greycat.internal.task.math.CoreMathExpressionEngine;
+
 import greycat.leveldb.LevelDBStorage;
 
 import static greycat.Tasks.*;
@@ -26,7 +20,7 @@ import static greycat.Tasks.newTask;
 /**
  * Created by Quentin on 29/06/2017.
  */
-public class Request {
+public class Query {
 
     public static void main(String[] args) {
 
@@ -63,8 +57,8 @@ public class Request {
                 .execute(g, new Callback<TaskResult>() {
                     @Override
                     public void on(TaskResult taskResult) {
-                        for (int i = 0; i < taskResult.size() / 4; i++) {
-                            int j = taskResult.size() / 4;
+                        int j = taskResult.size() / 4;
+                        for (int i = 0; i < j; i++) {
                             Vehicle_GPS data = new Vehicle_GPS((String) taskResult.get(i), (String) taskResult.get(i + j), (Double) taskResult.get(i + 2 * j), (Double) taskResult.get(i + 3 * j));
                             //System.out.println(data);
                             coord.add(data);
@@ -76,7 +70,7 @@ public class Request {
 
         System.out.println(coord);
 
-        System.out.println("At time " + travel_time + " the following vehicles are created :");
+        System.out.println("At time " + travel_time + " the following vehicles have been created :");
 
         for (int i = 0; i < coord.size(); i++) {
             System.out.println(coord.get(i).name + " type " + coord.get(i).type + " with a longitude of " + coord.get(i).longitude + " and a latitude of " + coord.get(i).latitude + ".");
