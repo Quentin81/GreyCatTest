@@ -38,7 +38,7 @@ public class Query {
         System.out.println("Connected : " + isConnected);
 
         List<Vehicle_GPS> coord = new ArrayList();
-        String travel_time = "5";
+        String travel_time = "10";
 
         newTask()    //reading index
                 .then(travelInTime(travel_time))
@@ -75,6 +75,84 @@ public class Query {
         for (int i = 0; i < coord.size(); i++) {
             System.out.println(coord.get(i).name + " type " + coord.get(i).type + " with a longitude of " + coord.get(i).longitude + " and a latitude of " + coord.get(i).latitude + ".");
         }
+
+
+
+
+
+        for (int i = 0; i < coord.size(); i++) {
+
+            List<Long> PreviousNode = new ArrayList();
+
+            newTask()    //reading index
+                    .then(travelInTime(travel_time))
+                    .then(indexNames())
+                    .then(readGlobalIndex("index_vehicle_name","name",coord.get(i).name))
+                    .then(println("{{result}}"))
+
+                    .pipe(
+                            newTask().traverse("has_gps").timepoints("0",travel_time))
+                    .flat()
+
+                    .execute(g, new Callback<TaskResult>() {
+                        @Override
+                        public void on(TaskResult taskResult) {
+                            int k = taskResult.size();
+                            if (k != 0 ) {
+                                Long time = (Long) taskResult.get(0);
+                                //System.out.println(data);
+                                PreviousNode.add(time);
+                            }
+                        }
+                    });
+            if (PreviousNode.size() !=0) {
+                System.out.println(coord.get(i).name + " mofidied in " + PreviousNode.get(0));
+
+            }
+        }
+
+
+        for (int i = 0; i < coord.size(); i++) {
+
+            List<Long> NextNode = new ArrayList();
+
+            newTask()    //reading index
+                    .then(travelInTime(travel_time))
+                    .then(indexNames())
+                    .then(readGlobalIndex("index_vehicle_name","name",coord.get(i).name))
+                    .then(println("{{result}}"))
+
+                    .pipe(
+                            newTask().traverse("has_gps").timepoints(travel_time, "200"))
+                    .flat()
+
+                    .execute(g, new Callback<TaskResult>() {
+                        @Override
+                        public void on(TaskResult taskResult) {
+                            int k = taskResult.size();
+                            if (k != 0 ) {
+                                Long time = (Long) taskResult.get(k - 1);
+                                //System.out.println(data);
+                                NextNode.add(time);
+                            }
+                        }
+                    });
+           if (NextNode.size() !=0) {
+               System.out.println(coord.get(i).name + " will be mofidied in " + NextNode.get(0));
+
+           }
+        }
+
+
+
+
+
+
+
+
+
+
+
 
         g.disconnect(result -> {
             System.out.println("Goodbye !");
