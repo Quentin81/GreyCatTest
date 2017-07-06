@@ -72,54 +72,55 @@ public class Query {
 
         System.out.println("At time " + travel_time + " the following vehicles have been created :");
 
+        
+
+
         for (int i = 0; i < coord.size(); i++) {
+
+
             System.out.println(coord.get(i).name + " type " + coord.get(i).type + " with a longitude of " + coord.get(i).longitude + " and a latitude of " + coord.get(i).latitude + ".");
-        }
 
-
-
-
-
-        for (int i = 0; i < coord.size(); i++) {
 
             List<Long> PreviousNode = new ArrayList();
 
             newTask()    //reading index
                     .then(travelInTime(travel_time))
                     .then(indexNames())
-                    .then(readGlobalIndex("index_vehicle_name","name",coord.get(i).name))
+                    .then(readGlobalIndex("index_vehicle_name", "name", coord.get(i).name))
                     .then(println("{{result}}"))
 
                     .pipe(
-                            newTask().traverse("has_gps").timepoints("0",travel_time))
+                            newTask().traverse("has_gps").timepoints("0", travel_time))
                     .flat()
 
                     .execute(g, new Callback<TaskResult>() {
                         @Override
                         public void on(TaskResult taskResult) {
                             int k = taskResult.size();
-                            if (k != 0 ) {
+                            if (k != 0) {
                                 Long time = (Long) taskResult.get(0);
                                 //System.out.println(data);
                                 PreviousNode.add(time);
                             }
                         }
                     });
-            if (PreviousNode.size() !=0) {
-                System.out.println(coord.get(i).name + " mofidied in " + PreviousNode.get(0));
+
+            if (PreviousNode.size() == 0) {
+
+                Long travel_time_long = Long.parseLong(travel_time);
+                PreviousNode.add(travel_time_long);
 
             }
-        }
 
+            System.out.println(coord.get(i).name + " mofidied in " + PreviousNode.get(0));
 
-        for (int i = 0; i < coord.size(); i++) {
 
             List<Long> NextNode = new ArrayList();
 
             newTask()    //reading index
                     .then(travelInTime(travel_time))
                     .then(indexNames())
-                    .then(readGlobalIndex("index_vehicle_name","name",coord.get(i).name))
+                    .then(readGlobalIndex("index_vehicle_name", "name", coord.get(i).name))
                     .then(println("{{result}}"))
 
                     .pipe(
@@ -130,7 +131,7 @@ public class Query {
                         @Override
                         public void on(TaskResult taskResult) {
                             int k = taskResult.size();
-                            if (k != 0 ) {
+                            if (k != 0) {
                                 Long time = (Long) taskResult.get(k - 1);
                                 //System.out.println(data);
                                 NextNode.add(time);
@@ -139,62 +140,82 @@ public class Query {
                     });
 
 
-            long nextTime = 0;
+            long nextTime = -1;
 
-            if (NextNode.size() !=0) {
-               System.out.println(coord.get(i).name + " will be mofidied in " + NextNode.get(0));
-               nextTime =  NextNode.get(0);
-           }else{
-               System.out.println(coord.get(i).name + " won't be mofidied");
-           }
-
-           if (NextNode.size() !=0) {
-
-               String nextTravel = Long.toString(nextTime);
-               List<Double> nextCoord = new ArrayList();
-
-               newTask()    //reading index
-                       .then(travelInTime(nextTravel))
-                       .then(indexNames())
-                       .then(readGlobalIndex("index_vehicle_name", "name", coord.get(i).name))
-                       .then(println("{{result}}"))
-                       .pipe(
-                               newTask().traverse("has_gps").attribute("longitude"),
-                               newTask().traverse("has_gps").attribute("latitude"))
-                       .flat()
+            if (NextNode.size() != 0) {
+                System.out.println(coord.get(i).name + " will be mofidied in " + NextNode.get(0));
+                nextTime = NextNode.get(0);
+            } else {
+                System.out.println(coord.get(i).name + " won't be mofidied");
+            }
 
 
-                       .execute(g, new Callback<TaskResult>() {
-                           @Override
-                           public void on(TaskResult taskResult) {
-                               Double nextLong = (Double) taskResult.get(0);
-                               Double nextLat = (Double) taskResult.get(1);
-                               //System.out.println(data);
-                               nextCoord.add(nextLong);
-                               nextCoord.add(nextLat);
-                           }
-                       });
+            List<Double> nextCoord = new ArrayList();
 
-               System.out.println(coord.get(i).name + " will have longitude" + nextCoord.get(0) + " and latitude " + nextCoord.get(1));
-           }
-           else {
-               System.out.println(coord.get(i).name + " is always at the previous coord");
+            if (NextNode.size() != 0) {
+
+                String nextTravel = Long.toString(nextTime);
 
 
-           }
+                newTask()    //reading index
+                        .then(travelInTime(nextTravel))
+                        .then(indexNames())
+                        .then(readGlobalIndex("index_vehicle_name", "name", coord.get(i).name))
+                        .then(println("{{result}}"))
+                        .pipe(
+                                newTask().traverse("has_gps").attribute("longitude"),
+                                newTask().traverse("has_gps").attribute("latitude"))
+                        .flat()
+
+
+                        .execute(g, new Callback<TaskResult>() {
+                            @Override
+                            public void on(TaskResult taskResult) {
+                                Double nextLong = (Double) taskResult.get(0);
+                                Double nextLat = (Double) taskResult.get(1);
+                                //System.out.println(data);
+                                nextCoord.add(nextLong);
+                                nextCoord.add(nextLat);
+                            }
+                        });
+
+                System.out.println(coord.get(i).name + " will have longitude " + nextCoord.get(0) + " and latitude " + nextCoord.get(1));
+
+            } else {
+                System.out.println(coord.get(i).name + " is always at the previous coord");
+            }
+            //Extrapolation Calcul :
+
+            Double travel_time_double = Double.parseDouble(travel_time);
+
+            double previous_time_double = (double) PreviousNode.get(0);
+
+            double next_time_double = (double) nextTime;
+
+
+            if ( next_time_double == -1) {
+
+
+                System.out.println("According our extrapolation, at time = " + travel_time_double + ", the vehicle " + coord.get(i).name + " has a longitude of " + coord.get(i).longitude + " and a latitude of " + coord.get(i).latitude);
+
+
+            }else if ( previous_time_double == travel_time_double) {
+
+                System.out.println("According our extrapolation, at time = " + travel_time_double + ", the vehicle " + coord.get(i).name + " has a longitude of " + coord.get(i).longitude + " and a latitude of " + coord.get(i).latitude);
+
+
+            }else {
+
+                double extra_long = ((travel_time_double - previous_time_double) / (next_time_double - previous_time_double)) * (nextCoord.get(0)) + ((next_time_double - travel_time_double) / (next_time_double - previous_time_double)) * (coord.get(i).longitude);
+
+
+                double extra_lat = ((travel_time_double - previous_time_double) / (next_time_double - previous_time_double)) * (nextCoord.get(1)) + ((next_time_double - travel_time_double) / (next_time_double - previous_time_double)) * (coord.get(i).latitude);
+
+
+                System.out.println("According our extrapolation, at time = " + travel_time_double +  ", the vehicle " + coord.get(i).name + " has a longitude of " + extra_long + " and a latitude of " + extra_lat );
+            }
 
         }
-
-
-
-
-
-
-
-
-
-
-
 
         g.disconnect(result -> {
             System.out.println("Goodbye !");
