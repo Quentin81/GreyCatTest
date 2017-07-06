@@ -137,10 +137,52 @@ public class Query {
                             }
                         }
                     });
-           if (NextNode.size() !=0) {
+
+
+            long nextTime = 0;
+
+            if (NextNode.size() !=0) {
                System.out.println(coord.get(i).name + " will be mofidied in " + NextNode.get(0));
+               nextTime =  NextNode.get(0);
+           }else{
+               System.out.println(coord.get(i).name + " won't be mofidied");
+           }
+
+           if (NextNode.size() !=0) {
+
+               String nextTravel = Long.toString(nextTime);
+               List<Double> nextCoord = new ArrayList();
+
+               newTask()    //reading index
+                       .then(travelInTime(nextTravel))
+                       .then(indexNames())
+                       .then(readGlobalIndex("index_vehicle_name", "name", coord.get(i).name))
+                       .then(println("{{result}}"))
+                       .pipe(
+                               newTask().traverse("has_gps").attribute("longitude"),
+                               newTask().traverse("has_gps").attribute("latitude"))
+                       .flat()
+
+
+                       .execute(g, new Callback<TaskResult>() {
+                           @Override
+                           public void on(TaskResult taskResult) {
+                               Double nextLong = (Double) taskResult.get(0);
+                               Double nextLat = (Double) taskResult.get(1);
+                               //System.out.println(data);
+                               nextCoord.add(nextLong);
+                               nextCoord.add(nextLat);
+                           }
+                       });
+
+               System.out.println(coord.get(i).name + " will have longitude" + nextCoord.get(0) + " and latitude " + nextCoord.get(1));
+           }
+           else {
+               System.out.println(coord.get(i).name + " is always at the previous coord");
+
 
            }
+
         }
 
 
