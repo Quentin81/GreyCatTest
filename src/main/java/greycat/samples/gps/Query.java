@@ -17,6 +17,19 @@ import static greycat.internal.task.CoreActions.*;
 
 import static greycat.Tasks.newTask;
 
+import greycat.*;
+import greycat.struct.Buffer;
+import greycat.websocket.WSServer;
+import io.undertow.server.handlers.resource.ClassPathResourceManager;
+import io.undertow.server.handlers.resource.ResourceHandler;
+
+import greycat.chunk.StateChunk;
+import greycat.base.BaseNode;
+
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.util.concurrent.CountDownLatch;
+
 /**
  * Created by Quentin on 29/06/2017.
  */
@@ -34,11 +47,15 @@ public class Query {
         g.connect(isConnected ->
 
     {
+
+        WSServer graphServer = new WSServer(g, 3000);
+        graphServer.start();
+
         //Display that the graph database is connected!
         System.out.println("Connected : " + isConnected);
 
         List<Vehicle_GPS> coord = new ArrayList();
-        String travel_time = "10";
+        String travel_time = "11";
 
         newTask()    //reading index
                 .then(travelInTime(travel_time))
@@ -72,7 +89,7 @@ public class Query {
 
         System.out.println("At time " + travel_time + " the following vehicles have been created :");
 
-        
+
 
 
         for (int i = 0; i < coord.size(); i++) {
