@@ -49,6 +49,7 @@ public class Query {
     {
 
         WSServer graphServer = new WSServer(g, 3000);
+        graphServer.addHandler("hello", new ResourceHandler(new ClassPathResourceManager(g.getClass().getClassLoader(), "hello")).addWelcomeFiles("index.html").setDirectoryListingEnabled(true));
         graphServer.start();
 
         //Display that the graph database is connected!
@@ -61,7 +62,7 @@ public class Query {
                 .then(travelInTime(travel_time))
                 .then(indexNames())
                 //.then(readGlobalIndex("index_vehicle", "type", "Car"))
-                .then(readGlobalIndex("index_vehicle"))
+                .then(readIndex("index_vehicle"))
                 .then(println("{{result}}"))
                 .pipe(newTask().attribute("name"),
                         newTask().attribute("type"),
@@ -103,8 +104,8 @@ public class Query {
             newTask()    //reading index
                     .then(travelInTime(travel_time))
                     .then(indexNames())
-                    .then(readGlobalIndex("index_vehicle_name", "name", coord.get(i).name))
-                    .then(println("{{result}}"))
+                    .then(readIndex("index_vehicle_name", coord.get(i).name))
+                    //.then(println("{{result}}"))
 
                     .pipe(
                             newTask().traverse("has_gps").timepoints("0", travel_time))
@@ -137,8 +138,8 @@ public class Query {
             newTask()    //reading index
                     .then(travelInTime(travel_time))
                     .then(indexNames())
-                    .then(readGlobalIndex("index_vehicle_name", "name", coord.get(i).name))
-                    .then(println("{{result}}"))
+                    .then(readIndex("index_vehicle_name", coord.get(i).name))
+                    //.then(println("{{result}}"))
 
                     .pipe(
                             newTask().traverse("has_gps").timepoints(travel_time, "200"))
@@ -149,7 +150,7 @@ public class Query {
                         public void on(TaskResult taskResult) {
                             int k = taskResult.size();
                             if (k != 0) {
-                                Long time = (Long) taskResult.get(k - 1);
+                                Long time = (Long) taskResult.get(0);
                                 //System.out.println(data);
                                 NextNode.add(time);
                             }
@@ -177,8 +178,8 @@ public class Query {
                 newTask()    //reading index
                         .then(travelInTime(nextTravel))
                         .then(indexNames())
-                        .then(readGlobalIndex("index_vehicle_name", "name", coord.get(i).name))
-                        .then(println("{{result}}"))
+                        .then(readIndex("index_vehicle_name", coord.get(i).name))
+                        //.then(println("{{result}}"))
                         .pipe(
                                 newTask().traverse("has_gps").attribute("longitude"),
                                 newTask().traverse("has_gps").attribute("latitude"))

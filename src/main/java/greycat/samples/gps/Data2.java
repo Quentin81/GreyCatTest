@@ -41,6 +41,12 @@ import static greycat.Tasks.newTask;
             System.out.println("Connected : " + isConnected);
 
 
+            newTask()
+                    .then(declareIndex("index_vehicle", "type"))
+                    .then(declareIndex("index_vehicle_name", "name"))
+                    .execute(g, null);
+
+
             newTask()     //add node train
                     .loop("0", "10",
                             newTask()
@@ -57,7 +63,7 @@ import static greycat.Tasks.newTask;
                                     .defineAsVar("nodes_train")
                                     //.then(println("{{result}}"))
 
-                                    .then(addVarToRelation("has_gps", "data_gps"))
+                                    .then(addVarTo("has_gps", "data_gps"))
                                     .then(println("{{result}}"))
 
                                     .then(readVar("data_gps"))
@@ -66,8 +72,29 @@ import static greycat.Tasks.newTask;
                                     .then(setAttribute("latitude", Type.DOUBLE, "{{=i-2}}"))
                                     .then(println("{{result}}"))
 
+
+                                    .then(readVar("data_gps"))
+                                    .then(travelInTime("{{=6*i}}"))
+                                    .then(setAttribute("longitude", Type.DOUBLE, "{{=i+12}}"))
+                                    .then(setAttribute("latitude", Type.DOUBLE, "{{=i-22}}"))
+                                    .then(println("{{result}}"))
+
+                                    .then(readVar("data_gps"))
+                                    .then(travelInTime("{{=8*i}}"))
+                                    .then(setAttribute("longitude", Type.DOUBLE, "{{=i+2}}"))
+                                    .then(setAttribute("latitude", Type.DOUBLE, "{{=i-2}}"))
+                                    .then(println("{{result}}"))
+
+                                    .then(readVar("data_gps"))
+                                    .then(travelInTime("{{=10*i}}"))
+                                    .then(setAttribute("longitude", Type.DOUBLE, "{{=i+32}}"))
+                                    .then(setAttribute("latitude", Type.DOUBLE, "{{=i-35}}"))
+                                    .then(println("{{result}}"))
+
+
                                     .then(readVar("nodes_train"))
-                                    .then(addToGlobalIndex("index_vehicle", "type")))
+                                    .then(updateIndex("index_vehicle"))
+                                    .then(updateIndex("index_vehicle_name")))
 
 
                     .execute(g, null);
@@ -88,7 +115,7 @@ import static greycat.Tasks.newTask;
                                     .defineAsVar("nodes_car")
                                     //.then(println("{{result}}"))
 
-                                    .then(addVarToRelation("has_gps", "data_gps"))
+                                    .then(addVarTo("has_gps", "data_gps"))
                                     .then(println("{{result}}"))
 
                                     .then(readVar("data_gps"))
@@ -98,11 +125,24 @@ import static greycat.Tasks.newTask;
 
                                     .then(println("{{result}}"))
                                     .then(readVar("nodes_car"))
-                                    .then(addToGlobalIndex("index_vehicle", "type")))
+                                    .then(updateIndex("index_vehicle"))
+                                    .then(updateIndex("index_vehicle_name")))
 
 
                     .execute(g, null);
 
+
+
+            newTask()    //reading index
+                    .then(travelInTime("10"))
+                    .then(indexNames())
+                    //.then(readGlobalIndex("index_vehicle", "type", "Car"))
+                    .then(readIndex("index_vehicle_name","TGV_4" ))
+                    .then(println("{{result}}"))
+                    .then(readIndex("index_vehicle","Car"))
+                    .then(println("{{result}}"))
+
+                    .execute(g, null);
 
             //test
             g.disconnect(result -> {
